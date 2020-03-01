@@ -55,7 +55,7 @@ def download_file(url, process_dir, file_name, overwrite=False, retries=3):
     raise IOError('download failed')
 
 
-def wget_download_file(url, process_dir, file_name, overwrite=False, retries=3):
+def wget_download_file(url, process_dir, file_name, use_proxy=False, overwrite=False, retries=3):
     if not overwrite and os.path.exists(os.path.join(process_dir, file_name)):
         return
     retry = 0
@@ -64,7 +64,10 @@ def wget_download_file(url, process_dir, file_name, overwrite=False, retries=3):
             local_tmp_file = os.path.join(process_dir, '_.tmp')
             if os.path.exists(local_tmp_file):
                 os.remove(local_tmp_file)
-            os.system("wget -O {} '{}'".format(local_tmp_file, url))
+            if use_proxy:
+                os.system("tsocks wget -O {} '{}'".format(local_tmp_file, url))
+            else:
+                os.system("wget -O {} '{}'".format(local_tmp_file, url))
             os.rename(local_tmp_file, os.path.join(process_dir, file_name))
             return True
         except Exception as expt:
